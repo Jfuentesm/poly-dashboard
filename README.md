@@ -1,7 +1,3 @@
-Of course. Here is a comprehensive README.md file for the `polycrisis-dashboard` repository, crafted from the provided technical memo and strategic report.
-
----
-
 # Polycrisis Dashboard
 A strategic intelligence tool for tracking the structural shifts in the global economic, monetary, and geopolitical order.
 
