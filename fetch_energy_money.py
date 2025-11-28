@@ -2,46 +2,53 @@ import yfinance as yf
 import pandas as pd
 
 def fetch_energy_money():
+    """
+    Fetches Oil and Treasury Yield data to calculate Energy-Value of Money.
+    Returns:
+        dict: containing 'Oil_Price', '10Y_Yield', 'Bond_Price', 'Energy_Value' or None.
+    """
     print("Fetching Market Data via yfinance...")
-
-    # Symbols
-    # Oil: CL=F (WTI Crude Oil Futures)
-    # 10Y Yield: ^TNX (CBOE Interest Rate 10 Year T Note).
-    # Note: ^TNX value is usually yield * 10 (e.g., 42.50 = 4.25%)
 
     tickers = ["CL=F", "^TNX"]
 
     try:
         # Fetch last 1 year of data
-        data = yf.download(tickers, period="1y", progress=False)['Close']
+        # Fix: explicit auto_adjust=True to silence warning
+        data = yf.download(tickers, period="1y", progress=False, auto_adjust=True)['Close']
 
-        # Extract series
-        oil_price = data['CL=F']
-        tnx_yield_index = data['^TNX']
+        oil_price = data['CL=F'].iloc[-1]
+        tnx_yield_index = data['^TNX'].iloc[-1]
 
         # Convert TNX to actual yield decimal
-        # Standard: ^TNX at 42.50 is 4.25%.
-        # So divide by 10 to get percent, then by 100 to get decimal. Total divide by 1000.
-        treasury_yield = tnx_yield_index / 1000.0
+        # Verified: Raw ^TNX is percentage (e.g. 4.02 for 4.02%)
+        treasury_yield = tnx_yield_index / 100.0
 
         # Calculate "Price of Theoretical 10Y Zero Coupon Bond" (Face 100)
-        # Price = 100 / (1 + r)^10
         bond_price = 100 / ((1 + treasury_yield) ** 10)
 
         # Metric: Barrels of Oil per Bond
-        # This represents how much real-world energy the "safe asset" can purchase.
         energy_value = bond_price / oil_price
 
-        print("\nLatest Data:")
-        print(f"Oil Price (WTI): ${oil_price.iloc[-1]:.2f}")
-        print(f"10Y Yield: {treasury_yield.iloc[-1]:.2%}")
-        print(f"Theoretical Bond Price: ${bond_price.iloc[-1]:.2f}")
-
-        print(f"\nEnergy-Value of Money (Barrels of Oil per 10Y Bond):")
-        print(f"{energy_value.iloc[-1]:.2f} Barrels")
+        return {
+            'Oil_Price': oil_price,
+            '10Y_Yield': treasury_yield,
+            'Bond_Price': bond_price,
+            'Energy_Value': energy_value
+        }
 
     except Exception as e:
         print(f"Error fetching market data: {e}")
+        return None
 
 if __name__ == "__main__":
-    fetch_energy_money()
+    res = fetch_energy_money()
+    if res:
+        print("\nLatest Data:")
+        print(f"Oil Price (WTI): ${res['Oil_Price']:.2f}")
+        print(f"10Y Yield: {res['10Y_Yield']:.2%}")
+        print(f"Theoretical Bond Price: ${res['Bond_Price']:.2f}")
+
+        print(f"\nEnergy-Value of Money (Barrels of Oil per 10Y Bond):")
+        print(f"{res['Energy_Value']:.2f} Barrels")
+    else:
+        print("Failed to fetch energy money data.")
