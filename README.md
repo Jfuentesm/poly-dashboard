@@ -31,6 +31,10 @@ This dashboard's purpose is to provide a coherent, data-driven narrative of this
 - **Automated Data Pipelines:** Scripts automatically fetch the latest data from open-source APIs to ensure indicators are as current as possible.
 - **Transparent Sourcing:** All data sources are clearly cited, prioritizing free and official APIs like FRED, EIA, and the U.S. Treasury.
 
+## Data Dictionary
+
+For a comprehensive breakdown of every Key Performance Indicator (KPI), including the exact formula, strategic logic, and technical data source (URL/API), please refer to the **[DATA_DICTIONARY.md](DATA_DICTIONARY.md)**.
+
 ## Dashboard Modules
 
 The dashboard is organized into four interconnected modules that guide the user through the report's core logic.
